@@ -1,0 +1,44 @@
+defaults:
+  wandb_run_model: self->wandb
+(suffix)TrainGenerator:
+  class: BatchGenerator2
+  data_generating_task: !var (suffix)_data_generating_task
+  data_processing_task: !var (suffix)_data_processing_task
+  x: !var batch_x
+  y: !var batch_y
+  batch_size: !var batch_size
+  in_memory: !nocache True
+  cache: False
+  steps_per_epoch: !var steps_per_epoch
+  extra_data: 
+    statistics: (suffix)StatisticsTrain->out
+(suffix)CalculateClassWeights:
+  class: CalculateClassWeights
+  column: classID
+  in: !var (suffix)_train_data
+  class_weights: !var class_weights
+(suffix)ValidationGenerator:
+  class: BatchGenerator2
+  data: !var (suffix)_validation_data
+  data_generating_task: null
+  data_processing_task: !var (suffix)_data_processing_task
+  x: !var batch_x
+  y: !var batch_y
+  batch_size: !var batch_size
+  in_memory: !nocache True
+  shuffle: False
+  extra_data: 
+    statistics: (suffix)StatisticsValidation->out
+(suffix)Model:
+  class: DienenModel
+  train_data: (suffix)TrainGenerator->out
+  validation_data: (suffix)ValidationGenerator->out
+  dienen_config: !var dienen_config
+  class_weights: (suffix)CalculateClassWeights->out
+  export: True
+  mods: !var (suffix)_dienen_mod
+  wandb_run: !var wandb_run_model
+  seed: !var seed
+#include:
+#- config: ../evaluation/evaluation.yaml
+#  suffix: (suffix)

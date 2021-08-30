@@ -1,0 +1,142 @@
+Module:
+- dienen_modules/losses.py
+- dienen_modules/schedules.py
+- dienen_modules/custom_fit.py
+- dienen_modules/custom_model.py
+defaults:
+  n_transformer_blocks: 12
+  n_pegs: 5
+  n_transformer_blocks_no_peg: 7
+gpu_config:
+  allow_growth: True
+Model:
+  name: audio_spectrogram_transformer
+  layer_modules:
+  - dienen_modules/custom_layers.py
+  Training:
+    n_epochs: !var n_epochs
+    workers: 1
+    loss: binary_crossentropy
+    optimizer:
+      type: Adam
+      learning_rate: WarmupExponentialDecay
+      learning_rate_args:
+        warmup_steps: 30000
+        max_lr: 0.001
+      clipvalue: 1
+    schedule:
+      SaveCheckpoints:
+        monitor_metric: val_loss
+        time_unit: step
+        frequency: 10000
+      EarlyStopping:
+        patience: 4
+      WANDBLogger:
+        loggers:
+          TrainMetrics:
+            freq: 10
+            unit: step
+          ValidationMetrics:
+            validation_data: AudiosetValidationGenerator->out
+            metrics_module: 
+            - dienen_modules/metrics.py
+            - tensorflow.keras.metrics
+            - tensorflow.keras.losses
+            custom_metrics:
+            - type: DPrime
+              balanced: True
+            - type: CustomPrecision
+              average: macro
+            - type: lwlrap
+            - type: BinaryCrossEntropy
+            freq: 5000
+            unit: step
+            labels: ~/Datasets/Audioset/audioset_labels.pickle
+  Architecture:
+  - Input:
+      name: waveform
+      shape: [158960,]
+  - Spectrogram:
+      win_size: 400
+      hop_size: 160
+      fft_size: 512
+      calculate: magnitude
+  - SpecAugment:
+      f_gaps: [1,3]
+      t_gaps: [1,3]
+      f_gap_size: [1,64]
+      t_gap_size: [1,100]
+      probability: 0.5
+  - MelScale:
+      num_mel_bins: 64
+      num_spectrogram_bins: 257
+      sample_rate: 16000
+      lower_edge_hertz: 125
+      upper_edge_hertz: 7500
+  - Log:
+      offset: 0.001
+  - TranslateRange:
+      original_range: [-5.61,2.07]
+      target_range: [0,1]
+  - Activation:
+      activation: relu #Clipea todo lo que esta muy cerca de silencio
+  - ExpandDims:
+      axis: -1
+  - GetPatches:
+      patch_size: [32,8]
+      mode: ud
+      name: patches
+  - Reshape:
+      target_shape: [-1,256]
+      name: flattened_patches
+  - ExpandDims:
+      axis: -1
+  - Dense:
+      units: 768
+      input: flattened_patches
+      name: patches_projection
+  - ZeroPadding1D:
+      padding: [1,0]
+      name: add_cls_token
+  - LayerNormalization:
+      epsilon: 1e-6
+  - Stamp:
+      name: transformer_encoder
+      what:
+      - TransformerBlock:
+          d_model: 768
+          d_proj: 64
+          n_heads: 12
+          ff_dim: 2048
+          pre_normalization: False
+          qkvw_init_scale: [0.707,0.707,0.707,0.707]
+      - PEG:
+          kernel_size: 3
+          shape_2d: [31,8]
+          learn_cls_token: [True, False, False, False, False]  
+      times: !var n_pegs
+  - Stamp:
+      name: transformer_encoder
+      what:
+      - TransformerBlock:
+          d_model: 768
+          d_proj: 64
+          n_heads: 12
+          ff_dim: 2048
+          pre_normalization: False
+          qkvw_init_scale: [0.707,0.707,0.707,0.707]
+      times: !var n_transformer_blocks_no_peg    
+  - SliceTensor:
+      name: get_cls_token
+      slices:
+      - axis: 1
+        start: 0
+        end: 1
+  - Squeeze:
+      axis: 1
+  - Dense:
+      units: 527
+      activation: sigmoid
+      name: probs
+  inputs: [waveform]
+  outputs: [probs]

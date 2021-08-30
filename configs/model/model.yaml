@@ -1,0 +1,6 @@
+include:
+  switch: !var model
+  configs:
+  - name: dienen_model
+    config: dnn.yaml
+    suffix: (suffix)

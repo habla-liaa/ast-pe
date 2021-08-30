@@ -1,0 +1,72 @@
+defaults:
+  audioset_path: null
+  merge_column_self: '# YTID'
+  merge_column_others: youtube_id
+  read_csv_kwargs:
+    delimiter: ','
+    skipinitialspace: True
+    quotechar: '"'
+    encoding: 'utf-8'
+    header: 2
+  Audioset_train_data: AudiosetPartition->train
+  Audioset_validation_data: AudiosetPartition->validation
+  Audioset_test_data: AudiosetPartition->test
+
+AudiosetReader:
+  class: AudioDatasetFromDirectory
+  run_after: (in_task)
+  run_parallel: True
+  dataset_path: !var audioset_path
+  parents_as_columns: #Use parent folders names as these columns
+  - partition
+  stem_as_column: youtube_id #Use filename as this column
+  metadata_files:
+    BalancedSet:
+      #path: http://storage.googleapis.com/us_audioset/youtube_corpus/v1/csv/balanced_train_segments.csv
+      path: ~/Datasets/Audioset/balanced_train_segments.csv
+      read_csv_kwargs: !var read_csv_kwargs
+      merge_column_self: !var merge_column_self
+      merge_column_others: !var merge_column_others
+    UnbalancedSet:
+      #path: http://storage.googleapis.com/us_audioset/youtube_corpus/v1/csv/unbalanced_train_segments.csv
+      path: ~/Datasets/Audioset/unbalanced_train_segments.csv
+      read_csv_kwargs: !var read_csv_kwargs
+      merge_column_self: !var merge_column_self
+      merge_column_others: !var merge_column_others
+    EvaluationSet:
+      #path: http://storage.googleapis.com/us_audioset/youtube_corpus/v1/csv/eval_segments.csv
+      path: ~/Datasets/Audioset/eval_segments.csv
+      read_csv_kwargs: !var read_csv_kwargs
+      merge_column_self: !var merge_column_self
+      merge_column_others: !var merge_column_others
+  in_memory: True
+  cache: False
+AudiosetOntologyDecoder:
+  class: AudiosetDecodeOntology
+  in: AudiosetReader->out
+  audioset_path: !var audioset_path
+  ontology_file: ~/Datasets/Audioset/ontology.json
+  column: positive_labels
+  new_column: humanfriendly_labels
+  in_memory: True
+  cache: False
+AudiosetMultiHotVector:
+  class: MultiHotVector
+  in: AudiosetOntologyDecoder->out
+  class_map: ~/Datasets/Audioset/audioset_class_map.csv
+  column_out: labels
+  column_in: positive_labels
+  class_map_key_column: mid
+  class_map_index_column: index
+  cache: False
+AudiosetFramerTrain:
+  class: Framer
+  in: AudiosetMultiHotVector->out
+  time_column: samples_count
+  frame_size: !var frame_size
+  hop_size: !var hop_size
+  in_memory: True
+  cache: False
+  window_short_audios: True
+  run_parallel: True
+  n_cores: !nocache 20

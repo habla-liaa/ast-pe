@@ -1,0 +1,43 @@
+include:
+  switch: !var dataset
+  configs:
+  - name: audioset
+    config: audioset.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: GSC
+    config: gsc.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: cremad
+    config: cremad.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: dementiabank
+    config: dementiabank.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: librispeech_sid
+    config: librispeech_sid.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: musan
+    config: musan.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: savee
+    config: savee.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: voxceleb1_sid
+    config: voxceleb1_sid.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: tut20
+    config: tut20.yaml
+    in_task: (in_task)
+    suffix: (suffix)
+  - name: tut20_dcase
+    config: tut20_for_dcase_eval.yaml
+    in_task: (in_task)
+    suffix: (suffix)

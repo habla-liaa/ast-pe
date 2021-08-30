@@ -1,0 +1,60 @@
+defaults:
+  temp_dataset_paths: !nocache ['~/temp/1','~/temp/2']
+  zips_per_batch: 10
+  zips_path: ~/Datasets/audioset_compressed
+  zip_glob_expression: /*_train*.zip #Balanced + unbalanced
+ListZips:
+  class: GlobWrapper
+  parent_dir: !var zips_path
+  expression: !var zip_glob_expression
+  in_memory: !nocache True
+GroupZips:
+  class: Group
+  n: !var zips_per_batch
+  in: ListZips->out
+  repetitions: !var n_epochs
+  shuffle_repetitions: True
+  in_memory: !nocache True
+DestinationPath:
+  class: CycleList
+  out_shape: GroupZips->out
+  cycle: !var temp_dataset_paths
+  in_memory: !nocache True
+BatchedTrain:
+  async: True
+  return_as_class: True
+  class: TaskGraph
+  in_memory: True
+  cache: False
+  in:
+    train_zips: !map GroupZips->out
+    destination_dir: !map DestinationPath->out
+  outputs:
+    frames: AudiosetFramerTrain->out
+  Tasks:
+    RemoveWavs:
+      class: RemoveFiles
+      folder: self->destination_dir
+      in_memory: True
+      cache: False
+    ExtractZip:
+      class: ZipExtractor
+      run_after: RemoveWavs->out
+      destination_path: self->destination_dir
+      in: self->train_zips
+      in_memory: True
+      cache: False
+    ConvertToWav:
+      class: ConvertToWav
+      filenames: !parallel-map ExtractZip->out
+      n_cores: !nocache 20
+      destination_path: self->destination_dir
+      sr: !var sr
+      delete_original: True
+      in_memory: True
+      cache: False
+    include:
+    - config: ../datasets/datasets.yaml
+      in_task: ConvertToWav->out
+
+    
