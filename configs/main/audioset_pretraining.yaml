@@ -32,7 +32,7 @@ Tasks:
     dataset: Audioset
   WANDBExperiment:
     class: WANDBExperiment
-    project_name: vit-pe
+    project_name: vit-pe-2
     experiment_name: !var experiment_name
     run_first: !nocache True
     cache: False
@@ -45,7 +45,7 @@ Tasks:
   EvaluationConvertToWav:
     class: ConvertToWav
     filenames: !parallel-map EvaluationExtractZip->out
-    n_cores: !nocache 36
+    n_cores: !nocache 16
     destination_path: ~/Datasets/audioset_evaluation
     sr: !var sr
     delete_original: True

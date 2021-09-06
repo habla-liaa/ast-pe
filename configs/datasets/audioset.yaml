@@ -59,6 +59,7 @@ AudiosetMultiHotVector:
   class_map_key_column: mid
   class_map_index_column: index
   cache: False
+  in_memory: True
 AudiosetFramerTrain:
   class: Framer
   in: AudiosetMultiHotVector->out

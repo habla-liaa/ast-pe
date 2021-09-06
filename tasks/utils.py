@@ -104,10 +104,11 @@ class Downloader(Task):
                     bucket_path = '/'.join(download_metadata['SourcePath'].split('s3://')[-1].split('/')[1:])
                     download_s3(bucket_name,bucket_path,str(destination_file))
             else:
-                if self.logger:
-                    self.logger.info('Skipping download as {} already exists'.format(str(destination_file)))
-                else:
-                    print('Skipping download as {} already exists'.format(str(destination_file)))
+                #if self.logger:
+                #    self.logger.info('Skipping download as {} already exists'.format(str(destination_file)))
+                #else:
+                #    print('Skipping download as {} already exists'.format(str(destination_file)))
+                pass
             if download_metadata.get('Extract',False) == True:
                 if destination_file.suffix == '.gz':
                     import tarfile
@@ -310,7 +311,8 @@ class ZipExtractor(Task):
 
             for member in zip_file.namelist():
                 if Path(destination_path_,member).exists():
-                    print('{} already exists'.format(member))
+                    #print('{} already exists'.format(member))
+                    pass
                 else:
                     zip_file.extract(member,destination_path_)
                 extracted_files.append(str(Path(destination_path_,member)))

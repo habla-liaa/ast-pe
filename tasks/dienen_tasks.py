@@ -90,7 +90,7 @@ class DienenModel(Task):
                     patience = Config(self.parameters['dienen_config'])[has_earlystop[0]].get('patience',1)
                     patience_unit = Config(self.parameters['dienen_config'])[has_earlystop[0]].get('patience_unit','epoch')
 
-                    if last_ckpt[patience_unit] - best_ckpt[patience_unit] >= patience:
+                    if len(best_ckpt)>0 and (last_ckpt[patience_unit] - best_ckpt[patience_unit] >= patience):
                         last_epoch = self.parameters['dienen_config/Model/Training/n_epochs']
                         last_step = last_ckpt['step']
                         finished_training = True
@@ -98,8 +98,8 @@ class DienenModel(Task):
                         opt_weights_path = best_ckpt['opt_weights_path']
                     else:
                         last_epoch, last_step, last_intraepoch, last_intraepoch_step, next_intra_epoch_step = last_ckpt['epoch'], last_ckpt['step'], last_ckpt['intra_epoch'], last_ckpt['intra_epoch_step'], last_ckpt['next_intra_epoch_step'] 
-                        weights_path = best_ckpt['weights_path']
-                        opt_weights_path = best_ckpt['opt_weights_path']
+                        weights_path = last_ckpt['weights_path']
+                        opt_weights_path = last_ckpt['opt_weights_path']
                 else:
                     weights_path = last_ckpt['weights_path']
                     opt_weights_path = last_ckpt['opt_weights_path']

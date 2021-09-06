@@ -1,6 +1,6 @@
 defaults:
   temp_dataset_paths: !nocache ['~/temp/1','~/temp/2']
-  zips_per_batch: 10
+  zips_per_batch: !nocache 40
   zips_path: ~/Datasets/audioset_compressed
   zip_glob_expression: /*_train*.zip #Balanced + unbalanced
 ListZips:
@@ -47,7 +47,7 @@ BatchedTrain:
     ConvertToWav:
       class: ConvertToWav
       filenames: !parallel-map ExtractZip->out
-      n_cores: !nocache 20
+      n_cores: !nocache 16
       destination_path: self->destination_dir
       sr: !var sr
       delete_original: True

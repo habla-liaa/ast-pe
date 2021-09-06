@@ -7,6 +7,7 @@ defaults:
   n_transformer_blocks: 12
   n_pegs: 5
   n_transformer_blocks_no_peg: 7
+  max_lr: 0.001
 gpu_config:
   allow_growth: True
 Model:
@@ -22,15 +23,15 @@ Model:
       learning_rate: WarmupExponentialDecay
       learning_rate_args:
         warmup_steps: 30000
-        max_lr: 0.001
+        max_lr: !var max_lr
       clipvalue: 1
     schedule:
       SaveCheckpoints:
         monitor_metric: val_loss
         time_unit: step
         frequency: 10000
-      EarlyStopping:
-        patience: 4
+      #EarlyStopping:
+      #  patience: 4
       WANDBLogger:
         loggers:
           TrainMetrics:
