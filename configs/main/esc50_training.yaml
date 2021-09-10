@@ -1,0 +1,39 @@
+modules:
+- tasks
+global:
+  dataset: esc50
+  n_classes: 50
+  model: dienen_model
+  esc50_partition: leave_one_out
+  esc50_leaveoneout_group: fold
+  experiment_name: esc50-debug-alibi2d-scratch
+  frame_size: 158960
+  hop_size: 158960
+  esc50_data_processing_task: self->data_processor
+  esc50_data_generating_task: null
+  esc50_training_data: esc50Partition->train
+  esc50_validation_data: esc50Partition->validation
+  batch_x: audio
+  batch_y: events
+  batch_size: 64
+  n_epochs: 200
+  sr: 16000
+  dienen_config: !yaml configs/model/architectures_classification/finetune_transformer.yaml
+  pretrained_ast: pretrained_models/peg-embeddings-220ksteps.dnn
+  events_col: classID
+Tasks:
+  WANDBExperiment:
+    class: WANDBExperiment
+    project_name: vit-pe-2
+    experiment_name: !var experiment_name
+    run_first: !nocache True
+    cache: False
+  include:
+  - config: ../batch/event_classification_batch.yaml
+    dataset: esc50
+  - config: ../datasets/datasets.yaml
+    in_task: WANDBExperiment->out
+  - config: ../partitions/partitions.yaml
+    dataset: esc50
+    in_task: esc50LabelEncode
+  

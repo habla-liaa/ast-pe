@@ -1,0 +1,21 @@
+esc50Reader:
+  class: AudioDatasetFromDirectory
+  run_after: (in_task)
+  dataset_path: ~/Datasets/ESC-50/ESC-50-master/audio16
+  filename_as_column: wav_name
+  #filename_re: (?P<fold>.*?)-(?P<sentence_id>.*?)_(?P<emotion>.*?)_(?P<emotion_level>.*?).wav
+  metadata_files:
+    metadata:
+      path: ~/Datasets/ESC-50/ESC-50-master/meta/esc50.csv
+      rename_cols:
+        filename: metadata_stem
+      merge_column_self: metadata_stem
+      merge_column_others: wav_name
+  export: True
+  cache: False
+esc50LabelEncode:
+  class: LabelEncoder
+  column: category
+  new_column: classID
+  in: esc50Reader->out
+  export: True

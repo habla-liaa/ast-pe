@@ -1,0 +1,62 @@
+Module:
+- dienen_modules/losses.py
+- dienen_modules/schedules.py
+- dienen_modules/custom_fit.py
+- dienen_modules/custom_model.py
+defaults:
+  n_transformer_blocks: 12
+  max_lr: 0.0001
+gpu_config:
+  allow_growth: True
+Model:
+  name: audio_spectrogram_transformer
+  layer_modules:
+  - dienen_modules/custom_layers.py
+  Training:
+    n_epochs: !var n_epochs
+    workers: 1
+    loss: sparse_categorical_crossentropy
+    metrics: [sparse_categorical_accuracy]
+    optimizer:
+      type: Adam
+      learning_rate: 0.001
+      clipvalue: 1
+    schedule:
+      StaircaseDecay:
+        init_lr: 0.001
+        lr_factors: [1,0.85]
+        boundaries: [0,270]
+        decay_each_n_steps: [1000, 27]
+      SaveCheckpoints:
+        monitor_metric: val_loss
+        time_unit: epoch
+        frequency: 5
+      WANDBLogger:
+        loggers:
+          TrainMetrics:
+            freq: 10
+            unit: step
+      GradualUnfreezing:
+        from_layer: [-2, 0]
+        epochs: [10, 50]
+        initial_lr: 0.001
+        lr_factor: [1.0,0.1]
+  External:
+    Models:
+      pretrained_ast: !var pretrained_ast
+  Architecture:
+  - Input:
+      name: waveform
+      shape: [158960,]
+  - External:
+      model: pretrained_ast
+      name: base_model
+      up_to: Squeeze_0
+      trainable: True
+      training: True
+  - Dense:
+      units: !var n_classes
+      activation: softmax
+      name: probs
+  inputs: [waveform]
+  outputs: [probs]
