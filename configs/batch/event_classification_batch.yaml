@@ -1,3 +1,5 @@
+defaults:
+  events_col: labels
 (dataset)DataProcessor:
   class: TaskGraph
   logging: False
@@ -30,6 +32,6 @@
     MakeEventsArray:
       class: ToNumpyDP
       in: ReadAudio->out
-      column_in: labels
+      column_in: !var events_col
       in_memory: True
       cache: False

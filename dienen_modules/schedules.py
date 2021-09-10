@@ -19,6 +19,27 @@ class WarmupExponentialDecay(tf.keras.optimizers.schedules.LearningRateSchedule)
 
         return self.multiplier * tf.math.minimum(arg1, arg2)
 
+class StaircaseDecay(tf.keras.callbacks.Callback):
+    def __init__(self, init_lr = 0.001, lr_factors = [1], boundaries = [0], decay_each_n_steps = [1000]):
+        super().__init__()
+        self.init_lr, self.lr_factors, self.boundaries, self.decay_each_n_steps = init_lr, lr_factors, boundaries, decay_each_n_steps
+        self.boundary_idx = 0
+        self.dtype = tf.float32
+        self.lr = tf.cast(self.init_lr,self.dtype)
+        self.step = 0
+        print(self.boundaries)
+
+    def on_batch_end(self, batch, logs=None):
+        if (self.step == self.boundaries[self.boundary_idx]) or (max(1,self.step - self.boundaries[self.boundary_idx])%self.decay_each_n_steps[self.boundary_idx] == 0):
+            self.lr = self.lr * tf.cast(self.lr_factors[self.boundary_idx],dtype=self.dtype)
+            tf.keras.backend.set_value(self.model.optimizer.lr,self.lr)
+            print('New lr: {:.5f}'.format(self.lr))
+        if (self.step == self.boundaries[self.boundary_idx]) and (self.boundary_idx + 1 < len(self.boundaries)):
+            self.boundary_idx += 1
+            print('Boundary IDX: {}'.format(self.boundary_idx))
+        self.step += 1
+        
+
 class PolynomialDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
     def __init__(self, warmup_steps = 1000,degree=1,max_lr=0.001,min_lr=0,num_updates=10000):
         super(PolynomialDecay, self).__init__()

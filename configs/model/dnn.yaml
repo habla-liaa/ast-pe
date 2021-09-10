@@ -1,7 +1,10 @@
 defaults:
   wandb_run_model: self->wandb
+  esc50_training_data: esc50PartitionTrainVal->train
+  esc50_validation_data: esc50PartitionTrainVal->validation
 (suffix)TrainGenerator:
   class: BatchGenerator2
+  data: !var (suffix)_training_data
   data_generating_task: !var (suffix)_data_generating_task
   data_processing_task: !var (suffix)_data_processing_task
   x: !var batch_x

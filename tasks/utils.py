@@ -251,6 +251,17 @@ class MultiHotVector(Task):
 
         return self.parameters['in']
 
+class OutputMerger(Task):
+    def process(self):
+        outputs = []
+        outputs_names = []
+        for k, v in self.parameters['outputs'].items():
+            outputs.append(v)
+            outputs_names.append(k)
+        
+        self.output_names = outputs_names
+        return tuple(outputs)
+
 class Pool(Task):
     def process(self):
         pool_type = self.parameters.get('type','mean')

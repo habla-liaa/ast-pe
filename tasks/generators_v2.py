@@ -217,6 +217,6 @@ class KerasGenerator(Sequence):
 
 class BatchGenerator2(Task):
     def process(self):
-        pruned_parameters = {k: v for k,v in self.parameters.items() if k not in ['class','in_memory','cache']}
+        pruned_parameters = {k: v for k,v in self.parameters.items() if k not in ['class','in_memory','cache','iter']}
         return KerasGenerator(**pruned_parameters)
 

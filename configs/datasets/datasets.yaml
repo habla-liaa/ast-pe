@@ -5,6 +5,10 @@ include:
     config: audioset.yaml
     in_task: (in_task)
     suffix: (suffix)
+  - name: esc50
+    config: esc-50.yaml
+    in_task: (in_task)
+    suffix: (suffix)
   - name: GSC
     config: gsc.yaml
     in_task: (in_task)

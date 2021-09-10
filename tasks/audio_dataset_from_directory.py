@@ -98,6 +98,9 @@ class AudioDatasetFromDirectory(Task):
                     df_metadata = pd.read_csv(metadata_params['path'],**csv_kwargs)
                 else:
                     df_metadata = pd.read_csv(Path(metadata_params['path']).expanduser(),**csv_kwargs)
+                rename_cols = metadata_params.get('rename_cols',None)
+                if rename_cols is not None:
+                    df_metadata = df_metadata.rename(rename_cols,axis='columns')
                 subset_i = output_df.loc[output_df[metadata_params['merge_column_others']].isin(df_metadata[metadata_params['merge_column_self']])]
                 subset_merged = pd.merge(subset_i,df_metadata,how='left',left_on=metadata_params['merge_column_others'],right_on=metadata_params['merge_column_self'])  
                 subsets.append(subset_merged)

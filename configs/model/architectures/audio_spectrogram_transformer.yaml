@@ -86,8 +86,6 @@ Model:
   - Reshape:
       target_shape: [-1,256]
       name: flattened_patches
-  - ExpandDims:
-      axis: -1
   - Dense:
       units: 768
       input: flattened_patches

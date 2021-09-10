@@ -3,6 +3,7 @@ global:
   features: none
   Audioset_data_processing_task: AudiosetDataProcessor->out
   Audioset_data_generating_task: BatchedTrain->out
+  Audioset_training_data: null
   Audioset_validation_data: EvaluationFramer->out
   dienen_config: !yaml configs/model/architectures/audio_spectrogram_transformer.yaml
   frame_size: 158960
