@@ -1,0 +1,50 @@
+defaults:
+  events_col: labels
+(dataset)DataProcessor:
+  class: TaskGraph
+  logging: False
+  return_as_class: True
+  in_memory: True
+  cache: False
+  in:
+    batch_data: null
+  outputs: 
+    audio: MakeAudioArray->out
+    events: MakeEventsArray->out
+  Tasks:
+    ReadAudio:
+      class: ReadAudioDP
+      in: self->batch_data
+      column_filename: filename
+      column_out: audio
+      column_start: start
+      column_end: end
+      column_sr: sampling_rate
+      fixed_size: !var frame_size
+      in_memory: True
+      remove_offset: True
+      cache: False
+    MixAudio:
+      class: MixDP
+      in: ReadAudio->out
+      column_gain: mixup_lambda
+      column_filename: mixup_sample
+      column_out: audio
+      column_audio: audio
+      column_start: start
+      column_end: end
+      fixed_size: !var frame_size
+      in_memory: True
+      cache: False
+    MakeAudioArray:
+      class: ToNumpyDP
+      in: MixAudio->out
+      column_in: audio
+      in_memory: True
+      cache: False
+    MakeEventsArray:
+      class: ToNumpyDP
+      in: ReadAudio->out
+      column_in: !var events_col
+      in_memory: True
+      cache: False

@@ -1,0 +1,105 @@
+global:
+  dataset: audioset
+  features: none
+  Audioset_data_processing_task: AudiosetDataProcessor->out
+  Audioset_data_generating_task: BatchedTrain->out
+  Audioset_training_data: null
+  Audioset_validation_data: AudiosetEvaluationBalancedSamplingMixup->out
+  dienen_config: !yaml configs/model/architectures/audio_spectrogram_transformer.yaml
+  frame_size: 158960
+  hop_size: 158960
+  Audioset_partition: random_split
+  batch_x: audio
+  batch_y: events
+  model: dienen_model
+  audioset_path: self->destination_dir
+  batch_size: 64
+  n_epochs: 50
+  steps_per_epoch: 25875
+  sr: 16000
+  wandb_run: WANDBExperiment->out
+  experiment_name: vit-pretrain-audioset-events
+modules:
+- tasks
+cluster_config:
+  manager: ray
+Tasks:
+  include:
+  - config: ../model/model.yaml
+    suffix: Audioset
+  - config: ../batch/event_classification_batch_balanced_sampling.yaml
+    dataset: Audioset
+  - config: ../batch/batched_training_with_wavconversion.yaml
+    dataset: Audioset
+  WANDBExperiment:
+    class: WANDBExperiment
+    project_name: vit-pe-2
+    experiment_name: !var experiment_name
+    run_first: !nocache True
+    cache: False
+  EvaluationExtractZip:
+    class: ZipExtractor
+    run_after: WANDBExperiment->out
+    destination_path: ~/Datasets/audioset_evaluation
+    in: [~/Datasets/audioset_compressed/eval.zip]
+    in_memory: True
+  EvaluationConvertToWav:
+    class: ConvertToWav
+    filenames: !parallel-map EvaluationExtractZip->out
+    n_cores: !nocache 16
+    destination_path: ~/Datasets/audioset_evaluation
+    sr: !var sr
+    delete_original: True
+    in_memory: True
+    cache: False
+  EvaluationAudiosetReader:
+    class: AudioDatasetFromDirectory
+    run_parallel: True
+    run_after: EvaluationConvertToWav->out
+    dataset_path: ~/Datasets/audioset_evaluation
+    parents_as_columns: #Use parent folders names as these columns
+    - partition
+    stem_as_column: youtube_id #Use filename as this column
+    metadata_files:
+      EvaluationSet:
+        path: ~/Datasets/Audioset/eval_segments.csv
+        read_csv_kwargs: !var read_csv_kwargs
+        merge_column_self: !var merge_column_self
+        merge_column_others: !var merge_column_others
+  EvaluationOntologyDecoder:
+    class: AudiosetDecodeOntology
+    in: EvaluationAudiosetReader->out
+    audioset_path: ~/Datasets/Audioset
+    ontology_file: ~/Datasets/Audioset/ontology.json
+    column: positive_labels
+    new_column: humanfriendly_labels
+    in_memory: True
+    cache: False
+  EvaluationMultiHotVector:
+    class: MultiHotVector
+    in: EvaluationOntologyDecoder->out
+    class_map: ~/Datasets/Audioset/audioset_class_map.csv
+    column_out: labels
+    column_in: positive_labels
+    class_map_key_column: mid
+    class_map_index_column: index
+    cache: False
+  EvaluationFramer:
+    class: Framer
+    in: EvaluationMultiHotVector->out
+    time_column: samples_count
+    frame_size: !var frame_size
+    window_short_audios: True
+    hop_size: !var hop_size
+    run_parallel: True
+  AudiosetEvaluationBalancedSamplingMixup:
+    class: BalancedSamplingMixup
+    in: EvaluationFramer->out
+    counts: ~/Datasets/Audioset/audioset_dev_class_counts.pickle
+    out_column: mixup_sample
+    labels_column: labels
+    alpha: 10
+    mix_labels: False #No tiene sentido en un problema de deteccion asignar valores distintos a 1 en los targets...
+    rate: 0
+    enable: False
+    cache: False

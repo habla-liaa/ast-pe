@@ -11,6 +11,7 @@ defaults:
   Audioset_train_data: AudiosetPartition->train
   Audioset_validation_data: AudiosetPartition->validation
   Audioset_test_data: AudiosetPartition->test
+  do_balanced_sampling: False
 
 AudiosetReader:
   class: AudioDatasetFromDirectory
@@ -71,3 +72,15 @@ AudiosetFramerTrain:
   window_short_audios: True
   run_parallel: True
   n_cores: !nocache 20
+AudiosetBalancedSamplingMixup:
+  class: BalancedSamplingMixup
+  in: AudiosetFramerTrain->out
+  counts: ~/Datasets/Audioset/audioset_dev_class_counts.pickle
+  out_column: mixup_sample
+  labels_column: labels
+  alpha: 10
+  mix_labels: False #No tiene sentido en un problema de deteccion asignar valores distintos a 1 en los targets...
+  rate: 0.5
+  enable: !var do_balanced_sampling
+  cache: False
+  in_memory: True

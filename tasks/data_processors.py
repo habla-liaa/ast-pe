@@ -38,7 +38,6 @@ class DownsampleDP(Task):
 
             return y
             
-        
         data[col_out] = data[col_in].apply(fn)
         return data
 
@@ -126,6 +125,43 @@ class MelspectrogramDP(Task):
             return melspec.T
 
         data[column_out] = data[column_in].apply(fn)
+        return data
+
+class MixDP(Task):
+    def process(self):
+        data = self.parameters['in']
+        gain_col = self.parameters.get('column_gain')
+        filename_col = self.parameters.get('column_filename')
+        col_out = self.parameters.get('column_out')
+        col_audio = self.parameters.get('column_audio')
+        fixed_size = self.parameters.get('fixed_size',None)
+        make_mono = self.parameters.get('make_mono',True)
+        column_start = self.parameters.get('column_start','start')
+        column_end = self.parameters.get('column_end','end')
+        remove_offset = self.parameters.get('remove_offset',False)
+
+        def extend_to_size(x,fixed_size):
+            if fixed_size <= len(x):
+                return x[:fixed_size]
+            else:
+                y = np.zeros((fixed_size,))
+                y[:len(x)] = x
+                return y
+
+        def fn(x):
+            if x[gain_col] > 0:
+                gain = x[gain_col]
+                y = sf.read(x[filename_col],start=int(x[column_start]),stop=int(x[column_end]))[0]
+                if make_mono and y.ndim > 1:
+                    y = y[:,0]
+                y = extend_to_size(y, fixed_size)
+                if remove_offset:
+                    y = y-np.mean(y)
+                return gain*y + (1-gain)*x[col_audio]
+            else:
+                return x[col_audio]
+
+        data[col_out] = data.apply(fn,axis=1)
         return data
 
 class NormalizeDP(Task):
@@ -250,6 +286,7 @@ class ReadAudioDP(Task):
         fixed_size = self.parameters.get('fixed_size',None)
         data_in = self.parameters.get('in',None)
         make_mono = self.parameters.get('make_mono',True)
+        remove_offset = self.parameters.get('remove_offset', False)
 
         def extend_to_size(x,fixed_size):
             if fixed_size <= len(x):
@@ -264,6 +301,9 @@ class ReadAudioDP(Task):
 
             if make_mono and y.ndim > 1:
                 y = y[:,0]
+            if remove_offset:
+                y = y - np.mean(y)
+
             y = extend_to_size(y, fixed_size)
             return y
 
