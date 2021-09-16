@@ -9,6 +9,21 @@ export PYTHONHASHSEED=1234
 #PEG
 #paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/peg_5_layers --mods "global/experiment_name=audioset_peg&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg.yaml&global/max_lr=0.0005&Tasks/AudiosetModel/task_hash=d62760c2ef31d621ca8ae8f656e3ca61e590c42a"
 #Huang2D
-paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/huang2d --mods "global/experiment_name=audioset_huang2d&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_huang2d.yaml&global/max_lr=0.0005&global/temp_dataset_paths=!nocache ['~/temp2/1','~/temp2/2']&global/batch_size=32&global/steps_per_epoch=51750"
+#paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/huang2d --mods "global/experiment_name=audioset_huang2d&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_huang2d.yaml&global/max_lr=0.0005&global/temp_dataset_paths=!nocache ['~/temp2/1','~/temp2/2']&global/batch_size=32&global/steps_per_epoch=51750"
 #Alibi2D
 #paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/alibi2d --mods "global/experiment_name=audioset_alibi2d&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_alibi2d.yaml&global/max_lr=0.0005"
+
+#PEG constant LR:
+#paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/peg_5_layers_constantlr --mods "global/experiment_name=audioset_peg_constantlr&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg_constantlr.yaml"
+
+#PEG with balanced sampling
+paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_mixup --mods "global/experiment_name=audioset_peg_mixup&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg2.yaml&global/max_lr=0.0005&global/do_balanced_sampling=True&Tasks/AudiosetModel/task_hash=7dae0a038315ba961f1659a2c54c04982b8f088e"
+
+#PEG2 with balanced sampling
+#paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_mixup_2 --mods "global/experiment_name=audioset_peg_mixup2&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg3.yaml&global/do_balanced_sampling=True&global/temp_dataset_paths=!nocache ['~/temp2/1','~/temp2/2']"
+
+#PEG original with balanced sampling
+#paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_balanced --mods "global/experiment_name=audioset_peg_balanced&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg.yaml&global/max_lr=0.0005&global/do_balanced_sampling=True"
+
+#PEG original with balanced sampling using lr decay
+#paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_balanced_lrdecay --mods "global/experiment_name=audioset_peg_balanced_lrdecay&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg_lrdecay.yaml&global/max_lr=0.0005&global/do_balanced_sampling=True"
