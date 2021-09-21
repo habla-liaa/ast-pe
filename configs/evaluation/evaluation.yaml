@@ -1,0 +1,9 @@
+include:
+  switch: !var (suffix)_evaluation
+  configs:
+  - name: classification
+    config: classification_metrics.yaml
+    suffix: (suffix)
+  - name: aed_metrics
+    config: aed_metrics.yaml
+    suffix: (suffix)

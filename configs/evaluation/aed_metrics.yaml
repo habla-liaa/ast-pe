@@ -1,0 +1,62 @@
+(suffix)TestGenerator:
+    class: BatchGenerator2
+    data: !var (suffix)_test_data
+    data_generating_task: !var (suffix)_data_generating_task
+    data_processing_task: !var (suffix)_data_processing_task
+    x: !var batch_x
+    y: !var batch_y
+    batch_size: !var batch_size
+    in_memory: !nocache True
+    shuffle: False
+(suffix)Predict:
+    class: DienenPredict
+    data: (suffix)TestGenerator->out
+    model: (suffix)Model->out
+    export: True
+    return_column: filename
+    cache: False
+(suffix)PredictSWA:
+    class: DienenPredict
+    data: (suffix)TestGenerator->out
+    model: (suffix)Model->swa_model
+    export: True
+    return_column: filename
+    cache: False
+(suffix)PredictionIndex:
+    class: Pool
+    in: (suffix)Predict->predictions
+    type: argmax
+    axis: -1
+    in_memory: True
+(suffix)PredictionIndexSWA:
+    class: Pool
+    in: (suffix)PredictSWA->predictions
+    type: argmax
+    axis: -1
+    in_memory: True
+(suffix)TargetIndex:
+    class: Pool
+    in: (suffix)Predict->targets
+    type: argmax
+    axis: -1
+    in_memory: True
+    enable: !var one_hot_vector_targets
+(suffix)TargetIndexSWA:
+    class: Pool
+    in: (suffix)PredictSWA->targets
+    type: argmax
+    axis: -1
+    in_memory: True
+    enable: !var one_hot_vector_targets
+(suffix)Metrics:
+    class: ClassificationMetrics
+    predictions: (suffix)PredictionIndex->out
+    targets: (suffix)TargetIndex->out
+    export: True
+    labels: self->labels
+(suffix)MetricsSWA:
+    class: ClassificationMetrics
+    predictions: (suffix)PredictionIndexSWA->out
+    targets: (suffix)TargetIndexSWA->out
+    export: True
+    labels: self->labels
