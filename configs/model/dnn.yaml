@@ -42,6 +42,7 @@ defaults:
   mods: !var (suffix)_dienen_mod
   wandb_run: !var wandb_run_model
   seed: !var seed
-#include:
-#- config: ../evaluation/evaluation.yaml
-#  suffix: (suffix)
+  return_swa: !var swa
+include:
+- config: ../evaluation/evaluation.yaml
+  suffix: (suffix)

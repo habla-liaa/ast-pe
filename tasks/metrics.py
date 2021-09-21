@@ -26,6 +26,7 @@ class ClassificationMetrics(Task):
             wandb.run.summary[k] = v
 
         labels = self.parameters.get('labels',None)
+
         if labels:
             labels_map = {i: labels[i] for i in range(len(labels))}
             targets = [labels_map[i] for i in self.parameters['targets']]

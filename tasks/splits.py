@@ -52,6 +52,7 @@ class GroupSplit(Task):
 class LeaveOneOut(Task):
     def process(self):
         groups = self.parameters['in'][self.parameters['group_col']].unique()
+        groups = np.sort(groups)
         self.output_names = ['train','test']
         test_folds = [[group] for group in groups]
         train_folds = [[f for f in groups if f not in test_fold] for test_fold in test_folds]

@@ -17,7 +17,7 @@ export PYTHONHASHSEED=1234
 #paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/peg_5_layers_constantlr --mods "global/experiment_name=audioset_peg_constantlr&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg_constantlr.yaml"
 
 #PEG with balanced sampling
-paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_mixup --mods "global/experiment_name=audioset_peg_mixup&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg2.yaml&global/max_lr=0.0005&global/do_balanced_sampling=True&Tasks/AudiosetModel/task_hash=7dae0a038315ba961f1659a2c54c04982b8f088e"
+#paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_mixup --mods "global/experiment_name=audioset_peg_mixup&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg2.yaml&global/max_lr=0.0005&global/do_balanced_sampling=True&Tasks/AudiosetModel/task_hash=7dae0a038315ba961f1659a2c54c04982b8f088e"
 
 #PEG2 with balanced sampling
 #paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_mixup_2 --mods "global/experiment_name=audioset_peg_mixup2&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg3.yaml&global/do_balanced_sampling=True&global/temp_dataset_paths=!nocache ['~/temp2/1','~/temp2/2']"
@@ -27,3 +27,9 @@ paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path ex
 
 #PEG original with balanced sampling using lr decay
 #paiprun configs/main/audioset_pretraining_balancedsampling.yaml --output_path experiments/vit/peg_5_layers_balanced_lrdecay --mods "global/experiment_name=audioset_peg_balanced_lrdecay&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg_lrdecay.yaml&global/max_lr=0.0005&global/do_balanced_sampling=True"
+
+#PEG + absolute pe
+#paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/peg_5_layers_plus_abs --mods "global/experiment_name=audioset_peg_plus_abs&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg_plus_abs.yaml&global/max_lr=0.0005"
+
+#No PE
+paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/no_pe --mods "global/experiment_name=audioset_no_pe&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_no_pe.yaml&global/max_lr=0.0005"

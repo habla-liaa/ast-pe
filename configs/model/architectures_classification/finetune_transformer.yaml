@@ -24,13 +24,14 @@ Model:
     schedule:
       StaircaseDecay:
         init_lr: 0.001
-        lr_factors: [1,0.85]
-        boundaries: [0,270]
-        decay_each_n_steps: [1000, 27]
+        lr_factors: [1,0.1, 0.85]
+        boundaries: [0,311,338]
+        decay_each_n_steps: [1000, 100,26]
       SaveCheckpoints:
-        monitor_metric: val_loss
+        monitor_metric: val_sparse_categorical_accuracy
         time_unit: epoch
         frequency: 5
+        swa: !var swa
       WANDBLogger:
         loggers:
           TrainMetrics:
@@ -40,7 +41,7 @@ Model:
         from_layer: [-2, 0]
         epochs: [10, 50]
         initial_lr: 0.001
-        lr_factor: [1.0,0.1]
+        lr_factor: [1.0,1.0]
   External:
     Models:
       pretrained_ast: !var pretrained_ast

@@ -6,6 +6,7 @@ global:
   model: dienen_model
   esc50_partition: leave_one_out
   esc50_leaveoneout_group: fold
+  esc50_evaluation: aed_metrics
   experiment_name: esc50-debug-alibi2d-scratch
   frame_size: 158960
   hop_size: 158960
@@ -13,18 +14,22 @@ global:
   esc50_data_generating_task: null
   esc50_training_data: esc50Partition->train
   esc50_validation_data: esc50Partition->validation
+  esc50_test_data: esc50Partition->validation
   batch_x: audio
   batch_y: events
   batch_size: 64
-  n_epochs: 200
+  n_epochs: 30
   sr: 16000
   dienen_config: !yaml configs/model/architectures_classification/finetune_transformer.yaml
   pretrained_ast: pretrained_models/peg-embeddings-220ksteps.dnn
   events_col: classID
+  one_hot_vector_targets: False
+
+  swa: 15
 Tasks:
   WANDBExperiment:
     class: WANDBExperiment
-    project_name: vit-pe-2
+    project_name: esc50-finetuning
     experiment_name: !var experiment_name
     run_first: !nocache True
     cache: False

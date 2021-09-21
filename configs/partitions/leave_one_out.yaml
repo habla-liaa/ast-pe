@@ -16,6 +16,9 @@
     predictions: (dataset)PredictionIndex->out
     targets: (dataset)TargetIndex->out
     metrics: (dataset)Metrics->out
+    predictions_swa: (dataset)PredictionIndexSWA->out
+    targets_swa: (dataset)TargetIndexSWA->out
+    metrics_swa: (dataset)MetricsSWA->out
   Tasks:
     (dataset)PartitionDevTest:
       class: Split
@@ -41,16 +44,29 @@
     #  dataset: (dataset)
     #  in_task: (dataset)Partition
     #  model_mods: (dataset)Metrics/labels=self->labels&(dataset)TrainGenerator/batch_task=self->data_processor&(dataset)ValidationGenerator/batch_task=self->data_processor&(dataset)TestGenerator/batch_task=self->data_processor
-#(dataset)MergePredictions:
-#  class: Concatenate
-#  in: (dataset)KFold->predictions
-#  axis: 0
-#(dataset)MergeTargets:
-#  class: Concatenate
-#  in: (dataset)KFold->targets
-#  axis: 0
-#(dataset)MergedMetrics:
-#  class: ClassificationMetrics
-#  predictions: (dataset)MergePredictions->out
-#  targets: (dataset)MergeTargets->out
-#  export: True
+(dataset)MergePredictions:
+  class: Concatenate
+  in: (dataset)KFold->predictions
+  axis: 0
+(dataset)MergeTargets:
+  class: Concatenate
+  in: (dataset)KFold->targets
+  axis: 0
+(dataset)MergedMetrics:
+  class: ClassificationMetrics
+  predictions: (dataset)MergePredictions->out
+  targets: (dataset)MergeTargets->out
+  export: True
+(dataset)MergePredictionsSWA:
+  class: Concatenate
+  in: (dataset)KFold->predictions_swa
+  axis: 0
+(dataset)MergeTargetsSWA:
+  class: Concatenate
+  in: (dataset)KFold->targets_swa
+  axis: 0
+(dataset)MergedMetricsSWA:
+  class: ClassificationMetrics
+  predictions: (dataset)MergePredictionsSWA->out
+  targets: (dataset)MergeTargetsSWA->out
+  export: True

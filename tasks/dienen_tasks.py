@@ -132,10 +132,21 @@ class DienenModel(Task):
 
             dienen_model.fit(train_data, validation_data = validation_data, from_epoch=last_epoch, from_step=last_step, class_weights=self.parameters.get('class_weights'))
 
-        dienen_model.load_weights(strategy='min')
+        dienen_model.load_weights(strategy='min',restore_optimizer=False)
         dienen_model.clear_session()
 
-        return dienen_model
+        if self.parameters.get('return_swa') is not None:
+            n_swa = self.parameters['dienen_config/Model/Training/n_epochs'] - self.parameters.get('return_swa') - 1
+            swa_weights = joblib.load(Path(self.cache_dir,'checkpoints','swa.weights'))
+            for k,v in swa_weights.items():
+                for i,w in enumerate(swa_weights[k][0]):
+                    swa_weights[k][0][i] = swa_weights[k][0][i]/n_swa
+            swa_model = copy.deepcopy(dienen_model)
+            swa_model.set_weights(swa_weights)
+            self.output_names = ['out','swa_model']
+            return dienen_model, swa_model
+        else:
+            return dienen_model
 
     def make_hash_dict(self):
         from paips.utils.settings import symbols
