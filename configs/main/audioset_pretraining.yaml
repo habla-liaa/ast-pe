@@ -29,7 +29,7 @@ Tasks:
     suffix: Audioset
   - config: ../batch/event_classification_batch.yaml
     dataset: Audioset
-  - config: ../batch/batched_training_with_wavconversion.yaml
+  - config: ../batch/batched_training_without_wavconversion.yaml
     dataset: Audioset
   WANDBExperiment:
     class: WANDBExperiment
@@ -40,14 +40,14 @@ Tasks:
   EvaluationExtractZip:
     class: ZipExtractor
     run_after: WANDBExperiment->out
-    destination_path: ~/Datasets/audioset_evaluation
+    destination_path: ~/audioset_evaluation
     in: [~/Datasets/audioset_compressed/eval.zip]
     in_memory: True
   EvaluationConvertToWav:
     class: ConvertToWav
     filenames: !parallel-map EvaluationExtractZip->out
     n_cores: !nocache 16
-    destination_path: ~/Datasets/audioset_evaluation
+    destination_path: ~/audioset_evaluation
     sr: !var sr
     delete_original: True
     in_memory: True
@@ -56,7 +56,7 @@ Tasks:
     class: AudioDatasetFromDirectory
     run_parallel: True
     run_after: EvaluationConvertToWav->out
-    dataset_path: ~/Datasets/audioset_evaluation
+    dataset_path: ~/audioset_evaluation
     parents_as_columns: #Use parent folders names as these columns
     - partition
     stem_as_column: youtube_id #Use filename as this column
