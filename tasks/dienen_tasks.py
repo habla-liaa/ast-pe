@@ -75,8 +75,10 @@ class DienenModel(Task):
                 last_ckpt = [ckpt for ckpt in metadata if ckpt['step'] == last_ckpt][0]
 
                 best_ckpt = [epoch['metric_val'] for epoch in metadata if 'metric_val' in epoch]
+
                 if len(best_ckpt) > 0:
-                    metric_name = metadata[-1]['metric']
+                    metric_name = [m['metric'] for m in metadata if 'metric' in m]
+                    metric_name = metric_name[0]
                     if metric_name.endswith('loss'): #Revisar criterio, hay seguro mas casos en los que es mejor minimizar
                         best_ckpt = [ckpt for ckpt in metadata if ('metric_val' in ckpt) and (ckpt['metric_val'] == min(best_ckpt))]
                     else:
