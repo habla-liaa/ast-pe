@@ -6,6 +6,7 @@ Module:
 defaults:
   n_transformer_blocks: 12
   max_lr: 0.001
+  warmup_steps: 30000
 gpu_config:
   allow_growth: True
 Model:
@@ -18,7 +19,7 @@ Model:
       type: Adam
       learning_rate: WarmupExponentialDecay
       learning_rate_args:
-        warmup_steps: 30000
+        warmup_steps: !var warmup_steps
         max_lr: !var max_lr
       clipvalue: 1
     schedule:
