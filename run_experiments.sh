@@ -9,7 +9,7 @@ export PYTHONHASHSEED=1234
 #PEG
 #paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/peg_5_layers --mods "global/experiment_name=audioset_peg&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg.yaml&global/max_lr=0.0005&Tasks/AudiosetModel/task_hash=d62760c2ef31d621ca8ae8f656e3ca61e590c42a"
 #Huang2D
-#paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/huang2d --mods "global/experiment_name=audioset_huang2d&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_huang2d.yaml&global/max_lr=0.0005&global/temp_dataset_paths=!nocache ['~/temp2/1','~/temp2/2']&global/batch_size=32&global/steps_per_epoch=51750"
+#paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/huang2d --mods "global/experiment_name=audioset_huang2d&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_huang2d.yaml&global/max_lr=0.0005&global/batch_size=32&global/steps_per_epoch=51750&Tasks/AudiosetModel/task_hash=779a6fb2d26e064c5c3809be176886d5dd628355"
 #Alibi2D
 #paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/alibi2d --mods "global/experiment_name=audioset_alibi2d&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_alibi2d.yaml&global/max_lr=0.0005"
 
@@ -32,4 +32,10 @@ export PYTHONHASHSEED=1234
 #paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/peg_5_layers_plus_abs --mods "global/experiment_name=audioset_peg_plus_abs&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_peg_plus_abs.yaml&global/max_lr=0.0005"
 
 #No PE
-paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/no_pe --mods "global/experiment_name=audioset_no_pe&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_no_pe.yaml&global/max_lr=0.0005"
+#paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/no_pe --mods "global/experiment_name=audioset_no_pe&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_no_pe.yaml&global/max_lr=0.0005"
+
+#Alibi2D (round 2: cls token correction)
+#paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/alibi2d_zeroinit --mods "global/experiment_name=audioset_alibi2d_zeroinit&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_alibi2d_zeroinit.yaml&global/max_lr=0.0005&global/temp_dataset_paths=!nocache ['~/temp2/1','~/temp2/2']"
+
+#Alibi2D (Time only heads) + Abs2D (Freq only)
+paiprun configs/main/audioset_pretraining.yaml --output_path experiments/vit/alibi_time_abs_freq --mods "global/experiment_name=audioset_alibi_time_abs_freq&global/dienen_config=!yaml configs/model/architectures/audio_spectrogram_transformer_alibitime_absfreq.yaml&global/max_lr=0.0005&global/temp_dataset_paths=!nocache ['~/temp2/1','~/temp2/2']"
