@@ -6,6 +6,12 @@ Module:
 defaults:
   n_transformer_blocks: 12
   max_lr: 0.001
+  validation_freq: 5000
+  validation_time_unit: step
+  warmup_steps: 30000
+  validation_data: AudiosetValidationGenerator->out
+  checkpoint_time_unit: step
+  checkpoint_freq: 10000
 gpu_config:
   allow_growth: True
 Model:
@@ -18,14 +24,14 @@ Model:
       type: Adam
       learning_rate: WarmupExponentialDecay
       learning_rate_args:
-        warmup_steps: 30000
+        warmup_steps: !var warmup_steps
         max_lr: !var max_lr
       clipvalue: 1
     schedule:
       SaveCheckpoints:
         monitor_metric: val_loss
-        time_unit: step
-        frequency: 10000
+        time_unit: !var checkpoint_time_unit
+        frequency: !var checkpoint_freq
       #EarlyStopping:
       #  patience: 4
       WANDBLogger:
@@ -34,7 +40,7 @@ Model:
             freq: 10
             unit: step
           ValidationMetrics:
-            validation_data: AudiosetValidationGenerator->out
+            validation_data: !var validation_data
             metrics_module: 
             - dienen_modules/metrics.py
             - tensorflow.keras.metrics
@@ -46,8 +52,8 @@ Model:
               average: macro
             - type: lwlrap
             - type: BinaryCrossEntropy
-            freq: 5000
-            unit: step
+            freq: !var validation_freq
+            unit: !var validation_time_unit
             labels: ~/Datasets/Audioset/audioset_labels.pickle
   Architecture:
   - Input:
