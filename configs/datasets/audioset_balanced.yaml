@@ -1,0 +1,53 @@
+defaults:
+  audioset_path: null
+  merge_column_self: '# YTID'
+  merge_column_others: youtube_id
+  read_csv_kwargs:
+    delimiter: ','
+    skipinitialspace: True
+    quotechar: '"'
+    encoding: 'utf-8'
+    header: 2
+  AudiosetBalanced_train_data: BalancedFramer->out
+  AudiosetBalanced_validation_data: EvaluationFramer->out
+  AudiosetBalanced_test_data: EvaluationFramer->out
+  do_balanced_sampling: False
+BalancedAudiosetReader:
+  class: AudioDatasetFromDirectory
+  run_parallel: True
+  dataset_path: ~/Datasets/Audioset/balanced_set
+  parents_as_columns: #Use parent folders names as these columns
+  - partition
+  stem_as_column: youtube_id #Use filename as this column
+  metadata_files:
+    BalancedSet:
+      path: ~/Datasets/Audioset/balanced_train_segments.csv
+      read_csv_kwargs: !var read_csv_kwargs
+      merge_column_self: !var merge_column_self
+      merge_column_others: !var merge_column_others
+BalancedOntologyDecoder:
+  class: AudiosetDecodeOntology
+  in: BalancedAudiosetReader->out
+  audioset_path: ~/Datasets/Audioset/
+  ontology_file: ~/Datasets/Audioset/ontology.json
+  column: positive_labels
+  new_column: humanfriendly_labels
+  in_memory: True
+  cache: False
+BalancedMultiHotVector:
+  class: MultiHotVector
+  in: BalancedOntologyDecoder->out
+  class_map: ~/Datasets/Audioset/audioset_class_map.csv
+  column_out: labels
+  column_in: positive_labels
+  class_map_key_column: mid
+  class_map_index_column: index
+  cache: False
+BalancedFramer:
+  class: Framer
+  in: BalancedMultiHotVector->out
+  time_column: samples_count
+  frame_size: !var frame_size
+  window_short_audios: True
+  hop_size: !var hop_size
+  run_parallel: True
